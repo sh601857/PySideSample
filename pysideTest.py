@@ -33,6 +33,7 @@ class MainW(QtGui.QMainWindow):
         dockWidget.setBaseSize(200,800)
         dockWidget.setTitleBarWidget(QtGui.QWidget(dockWidget))
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockWidget)#hide the titlebar
+        
 	#Create central widget			
         textEdit = QtGui.QTextEdit()		
         self.setCentralWidget(textEdit)

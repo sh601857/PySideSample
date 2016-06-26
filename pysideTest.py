@@ -5,6 +5,7 @@
 import sys
 from PySide import QtCore
 from PySide import QtGui
+import SimSpecWidget
 
 class MainW(QtGui.QMainWindow):
 
@@ -63,15 +64,15 @@ class MainW(QtGui.QMainWindow):
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockWidget)#hide the titlebar
 
         #Create central widget			
-        self.firstPageWidget =  QtGui.QWidget()
+        self.firstPageWidget =  SimSpecWidget.SimSpecWidget()
         self.secondPageWidget =  QtGui.QWidget()
         self.thirdPageWidget =  QtGui.QWidget()
 
         self.censw =  QtGui.QStackedWidget()
         self.censw.addWidget(self.firstPageWidget)
         self.censw.addWidget(self.secondPageWidget)
-        self.censw.addWidget(self.thirdPageWidget)	
-
+        self.censw.addWidget(self.thirdPageWidget)
+        self.censw.setCurrentIndex(0)
 
         self.setCentralWidget(self.censw)
 

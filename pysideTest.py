@@ -6,6 +6,7 @@ import sys
 from PySide import QtCore
 from PySide import QtGui
 import SimSpecWidget
+import PlotWidget
 
 class MainW(QtGui.QMainWindow):
 
@@ -19,9 +20,16 @@ class MainW(QtGui.QMainWindow):
         self.cmdmodel = QtGui.QStandardItemModel()
         parentItem = self.cmdmodel.invisibleRootItem()
         item = QtGui.QStandardItem(self.tr("1.Specification"))
-        item.appendRow(QtGui.QStandardItem("Simulation Specs"))
-        item.appendRow(QtGui.QStandardItem("CDU Variables"))
-        item.appendRow(QtGui.QStandardItem("Product Quality"))
+        item.setData(0,QtCore.Qt.UserRole+1)
+        subitem = QtGui.QStandardItem("Simulation Specs")
+        subitem.setData( 0, QtCore.Qt.UserRole+1 )
+        item.appendRow(subitem)
+        subitem = QtGui.QStandardItem("CDU Variables")
+        subitem.setData( 1, QtCore.Qt.UserRole+1 )
+        item.appendRow(subitem)
+        subitem = QtGui.QStandardItem("Product Quality")
+        subitem.setData( 2, QtCore.Qt.UserRole+1 )
+        item.appendRow(subitem)
         item.appendRow(QtGui.QStandardItem("Monitored Variables"))
         item.appendRow(QtGui.QStandardItem("HEN Stream Data"))
         parentItem.appendRow(item)
@@ -64,15 +72,15 @@ class MainW(QtGui.QMainWindow):
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, dockWidget)#hide the titlebar
 
         #Create central widget			
-        self.firstPageWidget =  SimSpecWidget.SimSpecWidget()
-        self.secondPageWidget =  QtGui.QWidget()
+        self.simSpecWgt =  SimSpecWidget.SimSpecWidget()
+        self.plotWgt =  PlotWidget.PlotWidget()
         self.thirdPageWidget =  QtGui.QWidget()
 
         self.censw =  QtGui.QStackedWidget()
-        self.censw.addWidget(self.firstPageWidget)
-        self.censw.addWidget(self.secondPageWidget)
+        self.censw.addWidget(self.simSpecWgt)
+        self.censw.addWidget(self.plotWgt)
         self.censw.addWidget(self.thirdPageWidget)
-        self.censw.setCurrentIndex(0)
+        self.censw.setCurrentIndex(1)
 
         self.setCentralWidget(self.censw)
 
@@ -95,7 +103,17 @@ class MainW(QtGui.QMainWindow):
         self.setWindowTitle('CDU-Int')    
         self.showMaximized()
 
-
+        self.cmdTree.clicked.connect(self.setWidget)
+        
+    @QtCore.Slot()
+    def setWidget(self,index):
+        wgtID = self.cmdmodel.itemFromIndex(index).data(QtCore.Qt.UserRole+1)
+        if wgtID == 0:
+            self.censw.setCurrentWidget(self.simSpecWgt)
+        elif wgtID==1:
+            self.censw.setCurrentWidget(self.plotWgt)
+        else:
+            self.censw.setCurrentWidget(self.thirdPageWidget)
 def main():
 
     app = QtGui.QApplication(sys.argv)

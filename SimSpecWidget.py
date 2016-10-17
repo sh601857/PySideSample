@@ -4,8 +4,10 @@
 
 import sys
 import sqlite3
+from pathlib import Path
 from PySide import QtCore
 from PySide import QtGui
+import AppProject
 
 class SimSpecWidget(QtGui.QWidget):
 
@@ -14,6 +16,7 @@ class SimSpecWidget(QtGui.QWidget):
         self.initUI()
 
     def initUI(self): 
+                  
         self.spbNColum = QtGui.QSpinBox()
         self.spbNColum.setRange(1,10)
         self.spbNColum.setValue(5) 
@@ -60,9 +63,15 @@ class SimSpecWidget(QtGui.QWidget):
     def loadData(self):
 
         if( self.smCDUName.rowCount() >0 ):
-            self.smCDUName.removeRows( self.smCDUName.rowCount() )
+            self.smCDUName.removeRows(0, self.smCDUName.rowCount() )
+        
+        appPro = AppProject.AppProject()        
+        dbFile =  appPro.getDBPath('CDUSpec.db')  
 
-        conn = sqlite3.connect('CDUSpec.db')
+        if not Path( dbFile ).exists():           
+            return
+        
+        conn = sqlite3.connect(dbFile)
         cursor = conn.cursor()
         try:
             for row in cursor.execute('SELECT Name,UnisimName,Acitive,SimNo FROM CUDNAMES ORDER BY SimNo'):
@@ -83,7 +92,9 @@ class SimSpecWidget(QtGui.QWidget):
     @QtCore.Slot()
     def save(self):
 
-        conn = sqlite3.connect('CDUSpec.db')
+        appPro = AppProject.AppProject()        
+        dbFile =  appPro.getDBPath('CDUSpec.db')       
+        conn = sqlite3.connect(dbFile)
         cursor = conn.cursor()
         cursor.execute('DROP TABLE IF EXISTS CUDNAMES')
         cursor.execute("""

@@ -29,7 +29,7 @@ class AppProject(metaclass=Singleton):
         self.mSimFolder = u'sim'
         
     def save(self):
-        if self.mFilePath !='' and Path( self.mFilePath ).exists():      
+        if self.mFilePath !='' and Path( self.mFilePath ).parent.exists():      
             config = configparser.ConfigParser()
             config['Paths'] = {'DB': self.mDBFolder,
                               'Sim': self.mSimFolder}
@@ -55,10 +55,13 @@ class AppProject(metaclass=Singleton):
             if not dirPath.exists() :
                 dirPath.mkdir() 
                 
-    def getDBPath(self,dfFileName):
+    def getPath(self,pathType,dfFileName):
         profile = Path( self.mFilePath )
         if self.mFilePath !='' and  profile.exists():
-            return str( profile.parent / self.mDBFolder / dfFileName )
+            if( pathType ) == 'DB' :
+                return str( profile.parent / self.mDBFolder / dfFileName )
+            if( pathType ) == 'Sim' :
+                return str( profile.parent / self.mSimFolder / dfFileName )
         else:
-            return u''
+            return ''
         

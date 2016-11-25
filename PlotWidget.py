@@ -15,8 +15,8 @@ class PlotWidget(QtGui.QWidget):
 
     def initUI(self):
         # generate the plot
-        fig = Figure(figsize=(600,600), dpi=72, facecolor=(1,1,1), edgecolor=(0,0,0),tight_layout=True)
-        ax = fig.add_subplot(111,title='test plot',xlabel='x',ylabel='y')
+        fig = Figure(figsize=(600,600), dpi=72, facecolor=(.94,.94,.94), edgecolor=(0,0,0),tight_layout=True)
+        ax = fig.add_subplot(111,axis_bgcolor=(.94,.94,.94),title='test plot',xlabel='x',ylabel='y')
         ax.xaxis.set_tick_params(width=1,size=8)      
         ax.plot([0,1])
         # generate the canvas to display the plot

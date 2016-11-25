@@ -25,4 +25,4 @@ console.toolbox = [{'autosave': False,
 proj.file-list = [loc('mv.py'),
                   loc('pysideTest.py')]
 proj.file-type = 'shared'
-proj.main-file = loc('pysideTest.py')
+proj.main-file = loc('iCDU.py')

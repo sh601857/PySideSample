@@ -32,15 +32,15 @@ class MainW(QtGui.QMainWindow):
         self.cmdmodel = QtGui.QStandardItemModel()
         parentItem = self.cmdmodel.invisibleRootItem()
         item = QtGui.QStandardItem(self.tr("1.Specification"))
-        item.setData(0,QtCore.Qt.UserRole+1)
+        item.setData(101,QtCore.Qt.UserRole+1)
         subitem = QtGui.QStandardItem("Simulation Specs")
-        subitem.setData( 0, QtCore.Qt.UserRole+1 )
+        subitem.setData( 101, QtCore.Qt.UserRole+1 )
         item.appendRow(subitem)
         subitem = QtGui.QStandardItem("CDU Variables")
-        subitem.setData( 1, QtCore.Qt.UserRole+1 )
+        subitem.setData( 102, QtCore.Qt.UserRole+1 )
         item.appendRow(subitem)
         subitem = QtGui.QStandardItem("Product Quality")
-        subitem.setData( 2, QtCore.Qt.UserRole+1 )
+        subitem.setData( 103, QtCore.Qt.UserRole+1 )
         item.appendRow(subitem)
         item.appendRow(QtGui.QStandardItem("Monitored Variables"))
         item.appendRow(QtGui.QStandardItem("HEN Stream Data"))
@@ -87,14 +87,15 @@ class MainW(QtGui.QMainWindow):
         #Create central widget			
         self.simSpecWgt =  SimSpecWidget.SimSpecWidget()
         self.plotWgt =  PlotWidget.PlotWidget()
-        self.thirdPageWidget =  QtGui.QWidget()
+        self.emptyPageWidget =  QtGui.QWidget()
 
         self.censw =  QtGui.QStackedWidget()
-        self.censw.addWidget(self.thirdPageWidget)
+        self.censw.addWidget(self.emptyPageWidget)
         self.censw.addWidget(self.simSpecWgt)
         self.censw.addWidget(self.plotWgt)
         
         self.censw.setCurrentIndex(0)
+        self._curWgtID = 0
 
         self.setCentralWidget(self.censw)
 
@@ -149,16 +150,22 @@ class MainW(QtGui.QMainWindow):
     def resetDockWidth(self):
         self.cmdTree.setMinimumWidth(10)
 
+    def setCensWgt(self,wgtID):
+        if wgtID == 101:
+            self.censw.setCurrentWidget(self.simSpecWgt)
+            self.simSpecWgt.loadData()
+        elif wgtID==102:
+            self.censw.setCurrentWidget(self.plotWgt)
+        else:
+            self.censw.setCurrentWidget(self.emptyPageWidget)
+            
+        self._curWgtID = wgtID
+        
     @QtCore.Slot()
     def setWidget(self,index):
         wgtID = self.cmdmodel.itemFromIndex(index).data(QtCore.Qt.UserRole+1)
-        if wgtID == 0:
-            self.censw.setCurrentWidget(self.simSpecWgt)
-            self.simSpecWgt.loadData()
-        elif wgtID==1:
-            self.censw.setCurrentWidget(self.plotWgt)
-        else:
-            self.censw.setCurrentWidget(self.thirdPageWidget)
+        if( self._curWgtID != wgtID):        
+            self.setCensWgt(wgtID)
 
     @QtCore.Slot()
     def newProject(self):            
@@ -171,7 +178,7 @@ class MainW(QtGui.QMainWindow):
         appPro.mFilePath = fileName
         appPro.save()
         appPro.creatFolder()
-        
+        self.setCensWgt(0)
         
         self.setWindowTitle( 'CDU-Int[{0}]'.format( appPro.mFilePath ) )
     @QtCore.Slot()
@@ -185,7 +192,7 @@ class MainW(QtGui.QMainWindow):
         appPro.load()
         
         self.setWindowTitle( 'CDU-Int[{0}]'.format( appPro.mFilePath ) )
-        self.censw.setCurrentIndex(0)
+        self.setCensWgt(0)
     @QtCore.Slot()
     def closeProject(self):            
 

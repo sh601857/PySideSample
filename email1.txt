@@ -1,0 +1,31 @@
+
+Hi Lluvia,
+
+	I have began developiing i-CDU( in-house ) using Python(a programming language) now. And I am working on [SimSpecs] and [CDU variables] now.
+	
+	You can download i-CDU from   url：http://pan.baidu.com/s/1c1AXGBm    password：rif9.
+	
+	I have made changes on you matlab GUI specification. You can have a look now and give me your suggestion.
+	
+	Simple Usage:
+	
+	1.unzip iCDU.zip, doubleclick iCDU.exe to run
+	
+	2.Run [File->New Project] and Create a new folder somewhere (for example: D:\icdu\test1) and save the i-CDU project file there (D:\icdu\test1\test1.icdup)
+	
+	3.Click [Simulation Specs] in the left explore, then click [Select Unisim case file] on the page and select the Unisim case file( ex: 20160201 FINAL CASE_Simplified CDU_V4-LMOE.usc ). The file will be copied to the project folder[D:\icdu\test1\sim\UnisimCaseFile.usc]
+	
+	4.Click [Load Columns from Unisim] the Columns('absorber' , 'columnop') in Unisim case file will be loaded. You can edit name and simulation order here. Click [Save] to save the data.
+	
+	5.Click [CDU Variables] in the left explore, then click [Load OptVars from Unisim]. This will load the content of 'OptimVar' SpreadsheetOp. You can edit some data here. Click [Save] to save the data.
+	
+	
+	
+	Questions:
+	
+	1. Is the excel files still needed if we store data in project folder (D:\icdu\test1\db) , view and edit data in i-CDU? So I have not added the excel import and export functions. I think we don't need matlab if we can use open source ANN packages (pybrain, scikit-learn). As an stand alone software we can not hope clients to have matlab installed.
+	
+	2. Do we need to add or delete CDU Variables in the [CDU Variables] page ? As we can read all variables from Unism file, I think add and delete is not needed.
+	
+	
+	

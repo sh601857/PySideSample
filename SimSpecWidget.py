@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sys
@@ -12,6 +11,7 @@ from PySide import QtCore
 from PySide import QtGui
 import win32com.client
 import AppProject
+
 
 class CDUModel(QtCore.QAbstractTableModel):
     def __init__(self):
@@ -240,46 +240,51 @@ class SimSpecWidget(QtGui.QWidget):
         appPro = AppProject.AppProject()        
         dbFile =  appPro.getPath('DB','CDUSpec.db')       
         conn = sqlite3.connect(dbFile)
-        cursor = conn.cursor()
-        cursor.execute('DROP TABLE IF EXISTS CUDNAMES')
-        cursor.execute("""
-        CREATE TABLE  CUDNAMES (
-            Name text NOT NULL,
-            UnisimName text,
-            Acitive INTEGER,
-            SimNo INTEGER
-            )
-        """)        
-    
-        self.smCDUName.cduData.to_sql('CUDNAMES', conn, index=False, if_exists='append')
+        try :
+            cursor = conn.cursor()
+            cursor.execute('DROP TABLE IF EXISTS CUDNAMES')
+            cursor.execute("""
+            CREATE TABLE  CUDNAMES (
+                Name text NOT NULL,
+                UnisimName text,
+                Acitive INTEGER,
+                SimNo INTEGER
+                )
+            """)        
         
-        cursor.execute('DROP TABLE IF EXISTS CUDDep')
-        cursor.execute("""
-        CREATE TABLE  CUDDep (
-            CDU text NOT NULL,
-            DEP text NOT NULL
-            )
-        """)
-        if len( self.smCDUDepd.depList) > 0:
-            cursor.executemany("insert into CUDDep values (?,?)", self.smCDUDepd.depList)
-        conn.commit()			
-        conn.close()   
-
-        msgBox = QtGui.QMessageBox()
-        msgBox.setText("The document has been Saved.")
-        msgBox.exec_()        
-        pass
+            self.smCDUName.cduData.to_sql('CUDNAMES', conn, index=False, if_exists='append')
+            
+            cursor.execute('DROP TABLE IF EXISTS CUDDep')
+            cursor.execute("""
+            CREATE TABLE  CUDDep (
+                CDU text NOT NULL,
+                DEP text NOT NULL
+                )
+            """)
+            if len( self.smCDUDepd.depList) > 0:
+                cursor.executemany("insert into CUDDep values (?,?)", self.smCDUDepd.depList)
+            conn.commit()			
+            conn.close()  
+            
+            appPro.mLogWdg.logAppend( self.tr('Simulation Specs has been Saved.') ,True)    
+        except:
+            appPro.mLogWdg.logAppend( self.tr('Saving Simulation Specs failed.') ,True) 
+        finally:    
+            #conn.commit()			
+            conn.close()
     
     @QtCore.Slot()
     def copyUnisimFile(self):
+        appPro = AppProject.AppProject()
+        simFile =  appPro.getPath('Sim','UnisimCaseFile.usc')
+        if simFile == '':    # Project not createed
+            appPro.mLogWdg.logAppend( self.tr('<font color=\"#6F4E37\">Please create a new project first.</font>') ,True)
+            return        
+        
         # Get Unisim case file path
         fileName = QtGui.QFileDialog.getOpenFileName( self, self.tr("Select Unisim Case Flei"), "", ("Unisim case Files (*.usc)") ) [0]
         if fileName == '':   # No file selected
             return         
-        appPro = AppProject.AppProject()
-        simFile =  appPro.getPath('Sim','UnisimCaseFile.usc')
-        if simFile == '':    # Project not createed
-            return
         shutil.copyfile(fileName, simFile)  # Copy to Sim 
         
         # update view
@@ -298,11 +303,13 @@ class SimSpecWidget(QtGui.QWidget):
             
             # Show Unisim
             UnisimApp.Visible = 1 if self.ckShowSimtor.isChecked() else 0
+            appPro.mLogWdg.logAppend( self.tr('UniSimDesign application started.') ,True)
             
             # Open Case File
             UnisimCases = UnisimApp.SimulationCases
             OpenedCase = UnisimCases.Open( simFile )
             
+            appPro.mLogWdg.logAppend( self.tr('[{0}] opend.').format( simFile ) ,True)
             Ops = OpenedCase.Flowsheet.Operations
             equips=[]
             for op in Ops:
@@ -314,5 +321,5 @@ class SimSpecWidget(QtGui.QWidget):
                 self.smCDUName.loadData(data)
                 self.smCDUDepd.updateCDU()
             UnisimApp.Quit()            
-        
+        appPro.mLogWdg.logAppend( self.tr('Loading columns from Unisim finished') ,True)
         

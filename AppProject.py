@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import configparser
 from pathlib import Path
+import LogWidget
 
 class Singleton(type):
     _instances = {}
@@ -21,7 +22,7 @@ class AppProject(metaclass=Singleton):
         self.mFilePath = u''
         self.mDBFolder = u'db'
         self.mSimFolder = u'sim'
-        pass
+        self.mLogWdg = None
 
     def reset(self):
         self.mFilePath = u''

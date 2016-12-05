@@ -48,3 +48,6 @@ Temporary Items
 
 # python cache
 __pycache__/
+
+# build 
+build/

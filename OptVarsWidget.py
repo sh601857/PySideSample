@@ -182,7 +182,7 @@ class OptVarsWidget(QWidget):
             
             appPro.mLogWdg.logAppend( self.tr('[{0}] opend.').format( simFile ) ,True)
             Ops = OpenedCase.Flowsheet.Operations
-            equips=[]
+            opList = []
             for op in Ops:
                 if op.Name == 'OptimVar':
                     nRows = op.NumberOfRows
@@ -202,14 +202,19 @@ class OptVarsWidget(QWidget):
                         lUnits.append(op.Cell(2,irow).Units)
                         lLB.append(op.Cell(3,irow).CellValue)
                         lUB.append(op.Cell(4,irow).CellValue)
-                    
-                    
+                                        
                     if( len(lDesc) > 0 ):
                         data = PD.DataFrame({'Equip':'---','Description':lDesc,  'VarType':lVarType, 'Units':lUnits, 'UnisimValue':lUnisimValue,'AnaLB':lLB,'AnaUB':lUB,'OptLB':lLB,'OptUB':lUB}, index= range(0,len(lDesc)))
                         data = data[['Equip','Description', 'VarType', 'UnisimValue','Units','AnaLB','AnaUB','OptLB','OptUB']]
                         self.tmOptVars.loadData(data)
                         break
-                
+                elif op.TypeName in ['absorber' , 'columnop']:
+                    opList.append( (op.Name, op.TypeName) )
+            
+            Mss = OpenedCase.Flowsheet.Streams
+            msList = []
+            for ms in Mss:
+                opList.append( (ms.Name, ms.TypeName) )
             UnisimApp.Quit()            
             appPro.mLogWdg.logAppend( self.tr('Loading OptimVar from Unisim finished') ,True)
         

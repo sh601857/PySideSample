@@ -95,6 +95,7 @@ class PlotWidget(QWidget):
         self.canvas = MyMplCanvas(self, width=5, height=4)
         layout =  QVBoxLayout()
         layout.addWidget(self.canvas)
+        layout.setContentsMargins(1,1,1,1)
         
         self.setLayout(layout)  
         

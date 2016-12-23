@@ -192,6 +192,7 @@ class SimSpecWidget(QtGui.QWidget):
         layout.addWidget(self.tvCDUDepd)
         layout.addStretch()
         layout.addWidget(buttonBox)
+        layout.setContentsMargins(1,1,1,1)
         self.setLayout(layout)      
         
         self.btnBroseSimFile.clicked.connect(self.copyUnisimFile) 

@@ -8,17 +8,12 @@ import numpy
 import win32com.client
 import AppProject
 
-UnisimUnits = {1:'Temperature',2:'Pressure', 3:'MolarFlow', 4:'MassFlow', 5:'VolumeFlow', 6:'Enthalpy', 7:'Density',8:'HeatCapacity',9:'Entropy', 10:'ThermalConductivity',
-               11:'Viscosity', 15:'HeatCapacityMass', 16:'MassDensity', 
-               22:'Length', 24:'DeltaTemperature', 28:'StdDensity',
-               30:'MassEnthalpy', 41:'Area',42:'Volume', 45:'DeltaPressure', 55:'VolumeFlowPerLength', 
-               62:'StdVolumeFlow', 64:'Percent',65:'Work',70:'ActualVolumeFlow',
-               84:'Power'}
+UnisimUnits = {1:'Temperature',4:'MassFlow',6:'Enthalpy',24:'DeltaTemperature'}
 
 class OptVarsModel(QAbstractTableModel):
     def __init__(self):
         super(OptVarsModel, self).__init__()
-        self.tableHeaderNames = ['ID', 'Description', 'Unisim Value', 'Units', 'Known?', 'Can be Modified?', 'Type', 'Object', 'Property' ]
+        self.tableHeaderNames = ['Equip', 'Description', 'Variable Type', 'Unisim Value', 'Units', 'Analysis LB','Analysis UB','Opt LB','Opt UB']
         self._dfData = PD.DataFrame(columns= self.tableHeaderNames )
         
         
@@ -32,11 +27,16 @@ class OptVarsModel(QAbstractTableModel):
         if index.isValid() == False:
             return None #QVariant()
         if role == Qt.DisplayRole:
-            return str(self._dfData.iloc[index.row(),index.column()] )
+            if index.column() == 2:
+                return str( UnisimUnits[ self._dfData.iloc[index.row(),index.column()] ])
+            elif index.column() in [3,5,6,7,8]:
+                return '{0:.3f}'.format(self._dfData.iloc[index.row(),index.column()] )
+            else:
+                return str(self._dfData.iloc[index.row(),index.column()] )
         elif role == Qt.EditRole:
             return ( self._dfData.iloc[index.row(),index.column()] )
         elif role == Qt.TextAlignmentRole:
-            if index.column() == 2:
+            if index.column() in [3,5,6,7,8]:
                 return Qt.AlignRight 
             else:
                 return Qt.AlignLeft 
@@ -48,12 +48,12 @@ class OptVarsModel(QAbstractTableModel):
 
     def setData(self, index, value, role = Qt.EditRole):
         if role == Qt.EditRole :
-            if index.column() == 1 :
+            if index.column() in [0,5,6,7,8] :
                 self._dfData.iloc[index.row(),index.column()] = value
         return True
 
     def flags(self, index):
-        if index.column() in [1] :
+        if index.column() in [0,5,6,7,8] :
             flag = Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
         else:
             flag = Qt.ItemIsSelectable | Qt.ItemIsEnabled 
@@ -113,7 +113,7 @@ class OptVarsWidget(QWidget):
         updateUnisimBtn.setEnabled( False )
         
         addBtn = QPushButton(self.tr("Add"))  
-                
+        addBtn.setEnabled( False )        
     
         buttonBox = QDialogButtonBox(Qt.Horizontal)
         buttonBox.addButton(addBtn, QDialogButtonBox.ActionRole)
@@ -141,7 +141,9 @@ class OptVarsWidget(QWidget):
         dbFile =  appPro.getPath('DB','CDUSpec.db')
         if dbFile != '' and Path( dbFile ).exists(): 
             try:
-                pass
+                conn = sqlite3.connect(dbFile)
+                data = PD.read_sql_query('select _Index, Equip, Description, VarType, UnisimValue, Units, AnaLB, AnaUB, OptLB, OptUB from OptVars ORDER BY _Index', conn, index_col='_Index')
+                self.tmOptVars.loadData(data)
             except:
                 appPro.mLogWdg.logAppend( self.tr('OptVar LoadData failed.') ,True) 
         
@@ -179,7 +181,8 @@ class OptVarsWidget(QWidget):
             #)
         #""")        
         try:
-            pass
+            self.tmOptVars._dfData.to_sql('OptVars', conn, index=True, index_label='_Index', if_exists='replace') 
+            appPro.mLogWdg.logAppend( self.tr('CDU variables have been saved.') ,True) 
         except:
             appPro.mLogWdg.logAppend( self.tr('Saving CDU variables failed.') ,True) 
         finally:    
@@ -201,44 +204,42 @@ class OptVarsWidget(QWidget):
             # Open Case File
             UnisimCases = UnisimApp.SimulationCases
             OpenedCase = UnisimCases.Open( simFile )
-            appPro.mLogWdg.logAppend( self.tr('[{0}] opend.').format( simFile ) ,True)
             
-            varList = []
-            uts = OpenedCase.UtilityObjects
-            for ut in uts:
-                if op.TypeName == 'bptableutility':
-                    pass
-                elif op.TypeName == 'traysizingutility':
-                    pass
-                
-            fss = []
-            fss.append(OpenedCase.Flowsheet)
-            fss.extend(OpenedCase.Flowsheet.Flowsheets)
-            for fs in fss:               
-                Ops = fs.Operations
-                for op in Ops:
-                    if op.TypeName == 'columnop':
-                        pass
-                    elif op.TypeName == 'coolerop':
-                        pass                
-                    elif op.TypeName == 'heaterop':
-                        pass
-                    elif op.TypeName == 'heatexop':
-                        pass                
-                    elif op.TypeName == 'spreadsheetop':
-                        pass  
-                    elif op.TypeName == 'teeop':
-                        pass
-                    elif op.TypeName == 'virtualstreamop':
-                        pass
+            appPro.mLogWdg.logAppend( self.tr('[{0}] opend.').format( simFile ) ,True)
+            Ops = OpenedCase.Flowsheet.Operations
+            opList = []
+            for op in Ops:
+                if op.Name == 'OptimVar':
+                    nRows = op.NumberOfRows
+                    lDesc=[]
+                    lVarType=[]
+                    lUnisimValue=[]
+                    lUnits = []
+                    lLB=[]
+                    lUB=[]
                     
-                Mss = fs.Streams
-                for ms in Mss:
-                    if ms.TypeName == 'materialstream':
-                        pass
-                    elif ms.TypeName == 'energystream':
-                        pass
-                
+                    for irow in range(1,nRows):
+                        if op.Cell(2,irow).AttachmentType != 1:
+                            break
+                        lDesc.append(op.Cell(1,irow).CellText)
+                        lVarType.append(op.Cell(2,irow).VariableType)
+                        lUnisimValue.append(op.Cell(2,irow).CellValue)
+                        lUnits.append(op.Cell(2,irow).Units)
+                        lLB.append(op.Cell(3,irow).CellValue)
+                        lUB.append(op.Cell(4,irow).CellValue)
+                                        
+                    if( len(lDesc) > 0 ):
+                        data = PD.DataFrame({'Equip':'---','Description':lDesc,  'VarType':lVarType, 'Units':lUnits, 'UnisimValue':lUnisimValue,'AnaLB':lLB,'AnaUB':lUB,'OptLB':lLB,'OptUB':lUB}, index= range(0,len(lDesc)))
+                        data = data[['Equip','Description', 'VarType', 'UnisimValue','Units','AnaLB','AnaUB','OptLB','OptUB']]
+                        self.tmOptVars.loadData(data)
+                        break
+                elif op.TypeName in ['absorber' , 'columnop']:
+                    opList.append( (op.Name, op.TypeName) )
+            
+            Mss = OpenedCase.Flowsheet.Streams
+            msList = []
+            for ms in Mss:
+                opList.append( (ms.Name, ms.TypeName) )
             UnisimApp.Quit()            
             appPro.mLogWdg.logAppend( self.tr('Loading OptimVar from Unisim finished') ,True)
         

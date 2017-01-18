@@ -1,11 +1,8 @@
 import time
 import pythoncom
 import win32com.client
-
-
 import threading
 stopEvent = threading.Event()
-
 
 class ExcelEvents:
 
@@ -27,8 +24,9 @@ class ExcelEvents:
         #return 0
     def OnWorkbookBeforeClose(self, Wb, Cancel):
         print ('OnWorkbookBeforeClose[{0}]'.format(Wb.FullName))
-        #if Wb.FullName == 'D:\\GitHub\\PySideSample\\test.xlsm':
-        self._CanQuit = True        
+        if Wb.FullName == u'D:\\GitHub\\PySideSample\\test.xlsm':
+            print(u'****Excel Can Quit Now*****')
+            self._CanQuit = True                
         return 0
     
 class WorkbookEvents:
@@ -55,8 +53,8 @@ xlApp.UserControl = 1
 xlApp._CanQuit = False
 
 # Add a workbook
-wbTest = xlApp.Workbooks.Open('D:\\GitHub\\PySideSample\\test.xlsm')
-print( 'Workbook[{0}]'.format( wbTest.Name ) )
+wbTest = xlApp.Workbooks.Open(u'D:\\GitHub\\PySideSample\\test.xlsm')
+print( 'Workbook[{0}]'.format( wbTest.FullName ) )
 
 # Take the active sheet
 wsSheet1 = wbTest.Sheets('Sheet1')
@@ -76,7 +74,7 @@ xlApp.Calculate()
 
 while xlApp._CanQuit == False:
 
-    time.sleep(1)
+    time.sleep( 0.1 )
     pythoncom.PumpWaitingMessages()
 
 xlApp=None

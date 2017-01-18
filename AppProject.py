@@ -26,7 +26,7 @@ class AppProject(metaclass=Singleton):
 
     def reset(self):
         self.mFilePath = u''
-        self.mDBFolder = u''
+        self.mDBFolder = u'db'
         self.mSimFolder = u'sim'
         
     def save(self):

@@ -39,7 +39,7 @@ class MainW(QtGui.QMainWindow):
         self._createActionMenuToolBar() #Create actions menu and toolbar	
         
         self.setGeometry(300, 300, 350, 250)
-        self.setWindowTitle('CDU-Int')    
+        self.setWindowTitle('i-CDU')    
         self.showMaximized()
 
         # Connests signals and slots

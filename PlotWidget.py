@@ -24,7 +24,7 @@ class MyMplCanvas(FigureCanvas):
                                    QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
         
-        self.axes = self.fig.add_axes([0.06, 0.10, 0.9, 0.85], axis_bgcolor=(.94,.94,.94))
+        self.axes = self.fig.add_axes([0.06, 0.10, 0.9, 0.85], facecolor=(.94,.94,.94))
         
         self.compute_initial_figure()
         

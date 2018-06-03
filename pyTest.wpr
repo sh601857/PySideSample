@@ -1,5 +1,5 @@
 #!wing
-#!version=5.0
+#!version=6.0
 ##################################################################
 # Wing IDE project file                                          #
 ##################################################################
@@ -46,6 +46,15 @@ console.toolbox = [{'autosave': False,
                     'key_binding': None,
                     'line_mode': True,
                     'loc': u'D:\\GitHub\\PySideSample\\testexcel.py',
+                    'pseudo_tty': False,
+                    'raise_panel': True,
+                    'title': None},
+                   {'autosave': False,
+                    'id': 'cmd-A6qv40HPAIPUq9WY',
+                    'io_encoding': None,
+                    'key_binding': None,
+                    'line_mode': True,
+                    'loc': u'D:\\GitHub\\PySideSample\\iCDU.py',
                     'pseudo_tty': False,
                     'raise_panel': True,
                     'title': None}]
